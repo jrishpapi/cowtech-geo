@@ -1,0 +1,7 @@
+# Modified for CowTech GEO. Upstream license and attribution are retained in LICENSE and NOTICE.
+.git
+.env*
+vendor
+node_modules
+storage
+bootstrap/cache

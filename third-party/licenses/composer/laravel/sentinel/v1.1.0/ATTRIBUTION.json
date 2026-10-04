@@ -1,0 +1,17 @@
+{
+  "package": "laravel/sentinel",
+  "version": "v1.1.0",
+  "declared_license": "MIT",
+  "authors": [
+    {
+      "name": "Taylor Otwell",
+      "email": "taylor@laravel.com"
+    },
+    {
+      "name": "Mior Muhammad Zaki",
+      "email": "mior@laravel.com"
+    }
+  ],
+  "source": "https://raw.githubusercontent.com/laravel/sentinel/972d9885d9d14312a118e9565c4e6ecc5e751ea1/composer.json",
+  "method": "Standard MIT text reproduced from SPDX to accompany upstream MIT declaration and published author attribution. No invented copyright years and no claim that upstream shipped a standalone LICENSE."
+}

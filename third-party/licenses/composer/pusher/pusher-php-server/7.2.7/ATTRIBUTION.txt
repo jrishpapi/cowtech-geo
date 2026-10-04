@@ -1,0 +1,7 @@
+## License
+
+Copyright 2014, Pusher. Licensed under the MIT license:
+https://www.opensource.org/licenses/mit-license.php
+
+Copyright 2010, Squeeks. Licensed under the MIT license:
+https://www.opensource.org/licenses/mit-license.php

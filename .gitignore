@@ -1,0 +1,16 @@
+.env
+.env.*
+!.env.example
+config/*.env
+**/node_modules/
+**/vendor/
+**/.env
+**/.env.*
+!**/.env.example
+**/storage/
+**/bootstrap/cache/
+backups/
+*.dump
+*.sql.gz
+*.log
+.playwright-cli/

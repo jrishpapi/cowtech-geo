@@ -1,0 +1,16 @@
+{
+  "name": "@aws-sdk/nested-clients",
+  "version": "3.997.34",
+  "license": "Apache-2.0",
+  "author": {
+    "name": "AWS SDK for JavaScript Team",
+    "url": "https://aws.amazon.com/sdk-for-javascript/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aws/aws-sdk-js-v3.git",
+    "directory": "packages/nested-clients"
+  },
+  "homepage": "https://github.com/aws/aws-sdk-js-v3/tree/main/packages/nested-clients",
+  "locked_version": "3.997.34"
+}

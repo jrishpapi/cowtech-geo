@@ -1,0 +1,11 @@
+{
+  "name": "pgpass",
+  "version": "1.0.5",
+  "license": "MIT",
+  "author": "Hannes H\u00f6rl <hannes.hoerl+pgpass@snowreporter.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hoegaarden/pgpass.git"
+  },
+  "locked_version": "1.0.5"
+}

@@ -1,0 +1,13 @@
+{
+  "package": "abstract-logging",
+  "version": "2.0.1",
+  "declared_license": "MIT",
+  "authors": [
+    {
+      "name": "James Sumners",
+      "email": "james.sumners@gmail.com"
+    }
+  ],
+  "source": "https://registry.npmjs.org/abstract-logging/2.0.1",
+  "method": "Standard MIT text reproduced from SPDX to accompany upstream MIT declaration and published author attribution. No invented copyright years and no claim that upstream shipped a standalone LICENSE."
+}

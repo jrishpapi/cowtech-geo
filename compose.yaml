@@ -1,0 +1,121 @@
+x-workbench: &workbench
+  build: ./workbench
+  env_file: ./config/workbench.env
+  volumes:
+    - uploads:/var/www/html/storage/app/public
+  networks: [private]
+  restart: unless-stopped
+x-monitoring: &monitoring
+  build: ./monitoring
+  env_file: ./config/monitoring.env
+  networks: [private]
+  restart: unless-stopped
+services:
+  workbench-db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: workbench
+      POSTGRES_USER: workbench
+      POSTGRES_PASSWORD: ${WORKBENCH_DB_PASSWORD:?Run scripts/configure.py first}
+    volumes: [workbench-db:/var/lib/postgresql/data]
+    networks: [private]
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U workbench -d workbench']
+      interval: 3s
+      retries: 30
+    restart: unless-stopped
+  monitoring-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: monitoring
+      POSTGRES_USER: monitoring
+      POSTGRES_PASSWORD: ${MONITORING_DB_PASSWORD:?Run scripts/configure.py first}
+    volumes: [monitoring-db:/var/lib/postgresql/data]
+    networks: [private]
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U monitoring -d monitoring']
+      interval: 3s
+      retries: 30
+    restart: unless-stopped
+  workbench-redis:
+    image: redis:7-alpine
+    command: [redis-server, --appendonly, 'yes']
+    volumes: [workbench-redis:/data]
+    networks: [private]
+    restart: unless-stopped
+  monitoring-redis:
+    image: redis:7-alpine
+    command: [redis-server, --appendonly, 'yes']
+    volumes: [monitoring-redis:/data]
+    networks: [private]
+    restart: unless-stopped
+  workbench-init:
+    <<: *workbench
+    command: [sh, -ec, 'php artisan migrate --force --no-interaction && php artisan db:seed --class=AdminUserSeeder --force --no-interaction']
+    depends_on:
+      workbench-db: {condition: service_healthy}
+    restart: 'no'
+  monitoring-init:
+    <<: *monitoring
+    command: [npm, run, bootstrap]
+    depends_on:
+      monitoring-db: {condition: service_healthy}
+    restart: 'no'
+  app:
+    <<: *workbench
+    networks: [private, outbound]
+    depends_on:
+      workbench-init: {condition: service_completed_successfully}
+      monitoring: {condition: service_healthy}
+  web:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.web
+    volumes: [uploads:/var/www/html/storage/app/public:ro]
+    ports: ['127.0.0.1:${WEB_PORT:-18088}:80']
+    networks: [private, outbound]
+    depends_on: [app]
+    restart: unless-stopped
+  queue:
+    <<: *workbench
+    networks: [private, outbound]
+    command: [php, artisan, 'queue:work', redis, '--queue=geoflow,distribution,default', '--sleep=1', '--tries=1', '--timeout=300']
+    depends_on:
+      workbench-init: {condition: service_completed_successfully}
+  workbench-scheduler:
+    <<: *workbench
+    command: [php, artisan, 'schedule:work']
+    depends_on:
+      workbench-init: {condition: service_completed_successfully}
+  monitoring:
+    <<: *monitoring
+    networks: [private, outbound]
+    depends_on:
+      monitoring-init: {condition: service_completed_successfully}
+      monitoring-redis: {condition: service_started}
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:18090/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 5s
+      retries: 20
+  monitoring-worker:
+    <<: *monitoring
+    networks: [private, outbound]
+    command: [npm, run, worker]
+    depends_on:
+      monitoring-init: {condition: service_completed_successfully}
+      monitoring-redis: {condition: service_started}
+  monitoring-scheduler:
+    <<: *monitoring
+    profiles: [scheduled-monitoring]
+    command: [npm, run, scheduler]
+    depends_on:
+      monitoring-init: {condition: service_completed_successfully}
+networks:
+  private: {internal: true}
+  outbound: {}
+volumes:
+  workbench-db:
+  monitoring-db:
+  workbench-redis:
+  monitoring-redis:
+  uploads:

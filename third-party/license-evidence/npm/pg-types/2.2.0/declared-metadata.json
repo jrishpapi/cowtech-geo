@@ -1,0 +1,12 @@
+{
+  "name": "pg-types",
+  "version": "2.2.0",
+  "license": "MIT",
+  "author": "Brian M. Carlson",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/brianc/node-pg-types.git"
+  },
+  "homepage": "https://github.com/brianc/node-pg-types",
+  "locked_version": "2.2.0"
+}

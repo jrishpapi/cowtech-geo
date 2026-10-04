@@ -1,0 +1,13 @@
+{
+  "package": "dfa",
+  "version": "1.2.0",
+  "declared_license": "MIT",
+  "authors": [
+    {
+      "name": "Devon Govett",
+      "email": "devongovett@gmail.com"
+    }
+  ],
+  "source": "https://registry.npmjs.org/dfa/1.2.0",
+  "method": "Standard MIT text reproduced from SPDX to accompany upstream MIT declaration and published author attribution. No invented copyright years and no claim that upstream shipped a standalone LICENSE."
+}

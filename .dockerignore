@@ -1,0 +1,8 @@
+.git
+.env
+config
+**/.env*
+**/vendor
+**/node_modules
+**/storage
+**/bootstrap/cache

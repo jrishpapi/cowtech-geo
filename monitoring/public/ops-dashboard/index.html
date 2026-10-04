@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ops Queue Dashboard</title>
+    <link rel="stylesheet" href="/internal/ops/dashboard-ui/styles.css" />
+  </head>
+  <body>
+    <div class="ops-shell">
+      <aside class="rail">
+        <div class="mark">
+          <span>G</span>
+          <div>
+            <strong>Growth Ops</strong>
+            <small>Internal queue</small>
+          </div>
+        </div>
+
+        <div class="health-block" id="healthBlock">
+          <span class="label">Status</span>
+          <strong>Loading</strong>
+          <small>Waiting for aggregate</small>
+        </div>
+
+        <nav class="queue-nav" id="queueNav" aria-label="Ops queues"></nav>
+      </aside>
+
+      <main class="workspace">
+        <header class="topline">
+          <div>
+            <p class="eyebrow">R8.3 · Product ops GeoFlow live gate</p>
+            <h1>Product ops</h1>
+          </div>
+          <div class="top-actions">
+            <div class="session-pill" id="sessionPill">Checking session</div>
+            <button class="lang-toggle" id="langToggle" type="button">EN</button>
+            <button class="refresh-button" id="refreshButton" type="button">Refresh</button>
+            <button class="logout-button" id="logoutButton" type="button">Logout</button>
+          </div>
+        </header>
+
+        <section class="summary-grid" id="summaryGrid" aria-label="Product ops queue summary"></section>
+
+        <section class="control-center-panel" id="controlCenterPanel" aria-label="Ops control center">
+          <div class="section-title">
+            <span class="label">Ops Control Center</span>
+            <strong>Live testing and intake controls</strong>
+          </div>
+          <div class="control-center-loading">Loading control center</div>
+        </section>
+
+        <section class="prompt-discovery-panel" id="promptDiscoveryQueue" aria-label="Prompt Discovery queue">
+          <div class="section-title">
+            <span class="label">Prompt Discovery</span>
+            <strong>Candidate queue</strong>
+          </div>
+          <div class="prompt-discovery-loading">Loading prompt discovery queue</div>
+        </section>
+
+        <section class="workbench">
+          <div class="queue-column">
+            <div class="section-title">
+              <span class="label">Queues</span>
+              <strong id="activeQueueTitle">All active work</strong>
+            </div>
+            <div class="queue-list" id="queueList"></div>
+          </div>
+
+          <aside class="detail-column" id="detailPanel" aria-live="polite"></aside>
+        </section>
+
+        <section class="activity-panel">
+          <div class="section-title">
+            <span class="label">Audit log</span>
+            <strong>Latest activity</strong>
+          </div>
+          <form class="audit-filter-bar" id="auditFilterForm">
+            <label class="field compact-field">
+              <span>Category</span>
+              <select name="category">
+                <option value="all">All</option>
+                <option value="workflow">Workflow</option>
+                <option value="admin">Admin users</option>
+              </select>
+            </label>
+            <label class="field compact-field">
+              <span>Action</span>
+              <input name="action" placeholder="admin_user_disabled" />
+            </label>
+            <label class="field compact-field">
+              <span>Actor</span>
+              <input name="actor" placeholder="admin:admin" />
+            </label>
+            <label class="field compact-field">
+              <span>Target</span>
+              <input name="target" placeholder="username, article, handoff" />
+            </label>
+            <label class="field compact-field">
+              <span>Search</span>
+              <input name="q" placeholder="Any audit text" />
+            </label>
+            <div class="audit-filter-actions">
+              <button class="small-submit" type="submit">Apply</button>
+              <button class="ghost-button" id="auditResetButton" type="button">Reset</button>
+              <button class="ghost-button" id="auditJsonButton" type="button">JSON</button>
+              <button class="ghost-button" id="auditCsvButton" type="button">CSV</button>
+              <button class="ghost-button" id="auditReportJsonButton" type="button">Report JSON</button>
+              <button class="ghost-button" id="auditReportHtmlButton" type="button">Report HTML</button>
+              <button class="ghost-button" id="auditArchiveButton" type="button">Archive</button>
+            </div>
+          </form>
+          <div class="audit-saved-row">
+            <label class="field compact-field">
+              <span>Saved view</span>
+              <select id="auditSavedViewSelect">
+                <option value="">No saved view</option>
+              </select>
+            </label>
+            <label class="field compact-field">
+              <span>View name</span>
+              <input id="auditSavedViewName" placeholder="Admin changes" />
+            </label>
+            <div class="audit-filter-actions">
+              <button class="ghost-button" id="auditLoadViewButton" type="button">Load</button>
+              <button class="ghost-button" id="auditSaveViewButton" type="button">Save view</button>
+              <button class="ghost-button" id="auditDeleteViewButton" type="button">Delete</button>
+            </div>
+          </div>
+          <div class="audit-archive-status" id="auditArchiveStatus">Report archive loading</div>
+          <div class="audit-verify-row">
+            <label class="field compact-field">
+              <span>Verify archive</span>
+              <input id="auditVerifyInput" placeholder="report_hash or evidence_signature" />
+            </label>
+            <div class="audit-filter-actions">
+              <button class="ghost-button" id="auditVerifyButton" type="button">Verify</button>
+              <button class="ghost-button" id="auditTamperButton" type="button">Tamper drill</button>
+              <button class="ghost-button" id="auditLoadReceiptButton" type="button">Load receipt</button>
+              <button class="ghost-button" id="auditReceiptButton" type="button">Receipt JSON</button>
+            </div>
+          </div>
+          <div class="audit-verify-status" id="auditVerifyStatus">Verification idle</div>
+          <div class="audit-verification-history" id="auditVerificationHistory">Verification history loading</div>
+          <div class="audit-evidence-row">
+            <label class="field compact-field">
+              <span>Evidence search</span>
+              <input id="auditEvidenceSearchInput" placeholder="report, receipt, digest, bundle, verifier" />
+            </label>
+            <label class="field compact-field">
+              <span>Failed check</span>
+              <select id="auditEvidenceFailedCheckSelect">
+                <option value="">All checks</option>
+                <option value="any">Any failure</option>
+                <option value="supplied_signature_matches">Supplied signature</option>
+                <option value="html_hash_matches">HTML hash</option>
+                <option value="evidence_signature_matches">Evidence signature</option>
+                <option value="report_hash_matches">Report hash</option>
+                <option value="event_digest_matches">Event digest</option>
+              </select>
+            </label>
+            <div class="audit-filter-actions">
+              <button class="ghost-button" id="auditEvidenceSearchButton" type="button">Search chain</button>
+              <button class="ghost-button" id="auditCaseJsonButton" type="button">Case JSON</button>
+              <button class="ghost-button" id="auditCaseHtmlButton" type="button">Case HTML</button>
+              <button class="ghost-button" id="auditCaseBundleButton" type="button">Case bundle</button>
+              <button class="ghost-button" id="auditCaseVerifyBundleButton" type="button">Verify bundle</button>
+              <button class="ghost-button" id="auditCaseBundleExportsButton" type="button">Bundle exports</button>
+              <button class="ghost-button" id="auditCaseBundleExportReceiptJsonButton" type="button">Export receipt</button>
+              <button class="ghost-button" id="auditCaseBundleExportReviewButton" type="button">Review export</button>
+              <button class="ghost-button" id="auditCaseBundleExportReviewsButton" type="button">Export reviews</button>
+              <button class="ghost-button" id="auditCaseBundleDeliveryReadinessButton" type="button">Delivery rollup</button>
+              <button class="ghost-button" id="auditCaseBundleDeliveryGateButton" type="button">Delivery gate</button>
+              <button class="ghost-button" id="auditCaseBundleDeliveryGateReceiptButton" type="button">Record gate</button>
+              <button class="ghost-button" id="auditCaseBundleDeliveryGateReceiptsButton" type="button">Gate receipts</button>
+              <button class="ghost-button" id="auditCaseBundleDeliveryGateReceiptJsonButton" type="button">Gate receipt JSON</button>
+              <button class="ghost-button" id="auditCaseBundleDeliveryHandoffPreviewButton" type="button">Handoff preview</button>
+              <button class="ghost-button" id="auditCaseBundleDeliveryHandoffPreviewReceiptButton" type="button">Record handoff</button>
+              <button class="ghost-button" id="auditCaseBundleDeliveryHandoffPreviewReceiptsButton" type="button">Handoff receipts</button>
+              <button class="ghost-button" id="auditCaseBundleDeliveryHandoffPreviewReceiptJsonButton" type="button">Handoff receipt JSON</button>
+              <button class="ghost-button" id="auditCaseBundleDeliveryFinalApprovalPreviewButton" type="button">Final approval</button>
+              <button class="ghost-button" id="auditCaseBundleDeliveryFinalApprovalReceiptButton" type="button">Record final</button>
+              <button class="ghost-button" id="auditCaseBundleDeliveryFinalApprovalReceiptsButton" type="button">Final receipts</button>
+              <button class="ghost-button" id="auditCaseBundleDeliveryFinalApprovalReceiptJsonButton" type="button">Final receipt JSON</button>
+              <button class="ghost-button" id="auditCaseBundleDeliveryFinalApprovalConfirmButton" type="button">Confirm final</button>
+              <button class="ghost-button" id="auditCaseBundleDeliveryFinalApprovalRevokeButton" type="button">Revoke final</button>
+              <button class="ghost-button" id="auditCaseBundleDeliveryFinalApprovalExpireButton" type="button">Expire final</button>
+              <button class="ghost-button" id="auditCaseBundleDeliveryFinalApprovalReviewsButton" type="button">Final lifecycle</button>
+              <button class="ghost-button" id="auditCaseBundleDeliveryFinalApprovalReviewJsonButton" type="button">Lifecycle JSON</button>
+              <button class="ghost-button" id="auditCaseBundleDeliveryFinalApprovalPolicyGateButton" type="button">Policy gate</button>
+              <button class="ghost-button" id="auditCaseBundleDeliveryFinalApprovalPolicyGateReceiptButton" type="button">Record policy</button>
+              <button class="ghost-button" id="auditCaseBundleDeliveryFinalApprovalPolicyGateReceiptsButton" type="button">Policy receipts</button>
+              <button class="ghost-button" id="auditCaseBundleDeliveryFinalApprovalPolicyGateReceiptJsonButton" type="button">Policy JSON</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryDryRunLockButton" type="button">Dry-run lock</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryDryRunLockReceiptButton" type="button">Record lock</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryDryRunLockReceiptsButton" type="button">Lock receipts</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryDryRunLockReceiptJsonButton" type="button">Lock JSON</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryRehearsalButton" type="button">Rehearsal</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryRehearsalReceiptButton" type="button">Record rehearsal</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryRehearsalsButton" type="button">Rehearsals</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryRehearsalJsonButton" type="button">Rehearsal JSON</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryDualControlApprovalButton" type="button">Dual approval</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryDualControlApprovalReceiptButton" type="button">Record dual</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryDualControlApprovalsButton" type="button">Dual approvals</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryDualControlApprovalJsonButton" type="button">Dual JSON</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryReadinessSealButton" type="button">Seal ready</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryReadinessSealReceiptButton" type="button">Record seal</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryReadinessSealsButton" type="button">Readiness seals</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryReadinessSealJsonButton" type="button">Seal JSON</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliverySealedHandoffReviewButton" type="button">Handoff review</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliverySealedHandoffReviewReceiptButton" type="button">Record signoff</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliverySealedHandoffReviewsButton" type="button">Signoff receipts</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliverySealedHandoffReviewJsonButton" type="button">Signoff JSON</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandEscrowButton" type="button">Command escrow</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandEscrowReceiptButton" type="button">Record command</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandEscrowsButton" type="button">Command receipts</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandEscrowJsonButton" type="button">Command JSON</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandRevocationButton" type="button">Command revoke</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandRevocationReceiptButton" type="button">Record revoke</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandRevocationsButton" type="button">Revocations</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandRevocationJsonButton" type="button">Revocation JSON</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandClosureButton" type="button">Rollback close</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandClosureReceiptButton" type="button">Record closure</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandClosuresButton" type="button">Closures</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandClosureJsonButton" type="button">Closure JSON</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailNotarizationButton" type="button">Trail notarize</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailNotarizationReceiptButton" type="button">Record trail</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailNotarizationsButton" type="button">Trail receipts</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailNotarizationJsonButton" type="button">Trail JSON</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailCustodyButton" type="button">Custody lock</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailCustodyReceiptButton" type="button">Record custody</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailCustodiesButton" type="button">Custodies</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailCustodyJsonButton" type="button">Custody JSON</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailRetentionAttestationButton" type="button">Retention attest</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailRetentionAttestationReceiptButton" type="button">Record retention</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailRetentionAttestationsButton" type="button">Retentions</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailRetentionAttestationJsonButton" type="button">Retention JSON</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailRenewalWindowButton" type="button">Renewal guard</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailRenewalWindowReceiptButton" type="button">Record renewal</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailRenewalWindowsButton" type="button">Renewals</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailRenewalWindowJsonButton" type="button">Renewal JSON</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailRenewalConfirmationButton" type="button">Checkpoint confirm</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailRenewalConfirmationReceiptButton" type="button">Record checkpoint</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailRenewalConfirmationsButton" type="button">Checkpoints</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailRenewalConfirmationJsonButton" type="button">Checkpoint JSON</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailCheckpointSealButton" type="button">Seal checkpoint</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailCheckpointSealReceiptButton" type="button">Record seal</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailCheckpointSealsButton" type="button">Seals</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailCheckpointSealJsonButton" type="button">Seal JSON</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailCustodyHandoffButton" type="button">Custody handoff</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailCustodyHandoffReceiptButton" type="button">Record handoff</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailCustodyHandoffsButton" type="button">Handoffs</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailCustodyHandoffJsonButton" type="button">Handoff JSON</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailArchiveEscrowButton" type="button">Archive escrow</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailArchiveEscrowReceiptButton" type="button">Record escrow</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailArchiveEscrowsButton" type="button">Escrows</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailArchiveEscrowJsonButton" type="button">Escrow JSON</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailEvidenceSealButton" type="button">Evidence seal</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailEvidenceSealReceiptButton" type="button">Record evidence</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailEvidenceSealsButton" type="button">Evidence seals</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailEvidenceSealJsonButton" type="button">Evidence JSON</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailCustodyCheckpointButton" type="button">Custody checkpoint</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailCustodyCheckpointReceiptButton" type="button">Record custody</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailCustodyCheckpointsButton" type="button">Custody checkpoints</button>
+              <button class="ghost-button" id="auditCaseBundleFinalDeliveryCommandTrailCustodyCheckpointJsonButton" type="button">Custody JSON</button>
+              <button class="ghost-button" id="auditCaseBundleExportReviewReceiptJsonButton" type="button">Export review JSON</button>
+              <button class="ghost-button" id="auditCaseBundleReceiptsButton" type="button">Bundle receipts</button>
+              <button class="ghost-button" id="auditCaseBundleReceiptJsonButton" type="button">Receipt JSON</button>
+            </div>
+          </div>
+          <div class="audit-evidence-chain" id="auditEvidenceChain">Evidence chain loading</div>
+          <div class="audit-evidence-row">
+            <label class="field compact-field">
+              <span>Case assignee</span>
+              <input id="auditCaseAssigneeInput" placeholder="admin or operator" />
+            </label>
+            <label class="field compact-field">
+              <span>Priority</span>
+              <select id="auditCasePrioritySelect">
+                <option value="normal">Normal</option>
+                <option value="high">High</option>
+                <option value="critical">Critical</option>
+                <option value="low">Low</option>
+              </select>
+            </label>
+            <label class="field compact-field">
+              <span>Due hours</span>
+              <input id="auditCaseDueHoursInput" inputmode="numeric" placeholder="24" />
+            </label>
+            <label class="field compact-field">
+              <span>SLA filter</span>
+              <select id="auditCaseSlaFilterSelect">
+                <option value="">All</option>
+                <option value="overdue">Overdue</option>
+                <option value="due_soon">Due soon</option>
+                <option value="on_track">On track</option>
+                <option value="unscheduled">Unscheduled</option>
+                <option value="closed">Closed</option>
+              </select>
+            </label>
+            <label class="field compact-field">
+              <span>Resolution note</span>
+              <input id="auditCaseResolutionInput" placeholder="resolution note" />
+            </label>
+            <label class="field compact-field">
+              <span>Anomaly digest min</span>
+              <input id="auditAnomalyDigestScheduleIntervalInput" inputmode="numeric" placeholder="1440" />
+            </label>
+            <label class="field compact-field">
+              <span>Anomaly retain days</span>
+              <input id="auditAnomalyDigestRetentionInput" inputmode="numeric" placeholder="90" />
+            </label>
+            <div class="audit-filter-actions">
+              <button class="ghost-button" id="auditOpenCaseButton" type="button">Open case</button>
+              <button class="ghost-button" id="auditOpenAnomalyCaseButton" type="button">Open anomaly</button>
+              <button class="ghost-button" id="auditResolveCaseButton" type="button">Resolve latest</button>
+              <button class="ghost-button" id="auditCaseReviewReceiptsButton" type="button">Review receipts</button>
+              <button class="ghost-button" id="auditCaseReviewReceiptJsonButton" type="button">Review receipt JSON</button>
+              <button class="ghost-button" id="auditAnomalyNotificationGenerateButton" type="button">Generate anomaly SLA</button>
+              <button class="ghost-button" id="auditAnomalyDigestGenerateButton" type="button">Anomaly digest</button>
+              <button class="ghost-button" id="auditAnomalyDigestHtmlButton" type="button">Anomaly digest HTML</button>
+              <button class="ghost-button" id="auditAnomalyDigestScheduleSaveButton" type="button">Save anomaly schedule</button>
+              <button class="ghost-button" id="auditAnomalyDigestScheduleRunButton" type="button">Run anomaly schedule</button>
+              <button class="ghost-button" id="auditAnomalyDigestPruneButton" type="button">Prune anomaly digests</button>
+              <button class="ghost-button" id="auditAnomalyDigestReceiptButton" type="button">Anomaly receipt</button>
+            </div>
+          </div>
+          <div class="audit-verification-history" id="auditEvidenceCaseStatus">Evidence cases loading</div>
+          <div class="audit-evidence-row">
+            <label class="field compact-field">
+              <span>Force reason</span>
+              <input id="auditNotificationForceReasonInput" placeholder="Approval reason" />
+            </label>
+            <label class="field compact-field">
+              <span>Review note</span>
+              <input id="auditNotificationReviewNoteInput" placeholder="approval or rejection note" />
+            </label>
+            <label class="field compact-field">
+              <span>Assigned reviewer</span>
+              <input id="auditNotificationAssignedReviewerInput" placeholder="reviewer:admin" />
+            </label>
+            <label class="field compact-field">
+              <span>Approval status</span>
+              <select id="auditNotificationApprovalStatusSelect">
+                <option value="">All</option>
+                <option value="requested">Requested</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+                <option value="executed">Executed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </label>
+            <label class="field compact-field">
+              <span>Expired</span>
+              <select id="auditNotificationApprovalExpiredSelect">
+                <option value="">All</option>
+                <option value="false">Active</option>
+                <option value="true">Expired</option>
+              </select>
+            </label>
+            <label class="field compact-field">
+              <span>Max expired</span>
+              <input id="auditReplayThresholdExpiredInput" inputmode="numeric" placeholder="0" />
+            </label>
+            <label class="field compact-field">
+              <span>Max near expiry</span>
+              <input id="auditReplayThresholdNearInput" inputmode="numeric" placeholder="2" />
+            </label>
+            <label class="field compact-field">
+              <span>Max review min</span>
+              <input id="auditReplayThresholdReviewInput" inputmode="numeric" placeholder="240" />
+            </label>
+            <label class="field compact-field">
+              <span>SLA interval min</span>
+              <input id="auditReplaySlaScheduleIntervalInput" inputmode="numeric" placeholder="60" />
+            </label>
+            <label class="field compact-field">
+              <span>SLA due soon h</span>
+              <input id="auditReplaySlaScheduleDueSoonInput" inputmode="numeric" placeholder="4" />
+            </label>
+            <label class="field compact-field">
+              <span>Digest interval min</span>
+              <input id="auditReplaySlaDigestScheduleIntervalInput" inputmode="numeric" placeholder="1440" />
+            </label>
+            <label class="field compact-field">
+              <span>Digest retention d</span>
+              <input id="auditReplaySlaDigestRetentionInput" inputmode="numeric" placeholder="90" />
+            </label>
+            <div class="audit-filter-actions">
+              <button class="ghost-button" id="auditNotificationGenerateButton" type="button">Generate alerts</button>
+              <button class="ghost-button" id="auditNotificationDeliverButton" type="button">Deliver stub</button>
+              <button class="ghost-button" id="auditNotificationExplainButton" type="button">Explain latest</button>
+              <button class="ghost-button" id="auditNotificationReplayButton" type="button">Replay latest</button>
+              <button class="ghost-button" id="auditNotificationForceReplayButton" type="button">Force replay</button>
+              <button class="ghost-button" id="auditNotificationRequestReplayButton" type="button">Request force</button>
+              <button class="ghost-button" id="auditNotificationApproveReplayButton" type="button">Approve request</button>
+              <button class="ghost-button" id="auditNotificationRejectReplayButton" type="button">Reject request</button>
+              <button class="ghost-button" id="auditNotificationExecuteReplayButton" type="button">Execute approved</button>
+              <button class="ghost-button" id="auditNotificationAssignReplayButton" type="button">Assign reviewer</button>
+              <button class="ghost-button" id="auditNotificationCleanupExpiredButton" type="button">Cleanup expired</button>
+              <button class="ghost-button" id="auditNotificationWorkloadJsonButton" type="button">Workload JSON</button>
+              <button class="ghost-button" id="auditNotificationEscalationHtmlButton" type="button">Escalation HTML</button>
+              <button class="ghost-button" id="auditNotificationPerformanceJsonButton" type="button">Performance JSON</button>
+              <button class="ghost-button" id="auditNotificationPerformanceHtmlButton" type="button">Performance HTML</button>
+              <button class="ghost-button" id="auditReplayThresholdSaveButton" type="button">Save SLA thresholds</button>
+              <button class="ghost-button" id="auditReplaySlaAlertGenerateButton" type="button">Route SLA alerts</button>
+              <button class="ghost-button" id="auditReplaySlaScheduleSaveButton" type="button">Save SLA schedule</button>
+              <button class="ghost-button" id="auditReplaySlaScheduleRunButton" type="button">Run SLA schedule</button>
+              <button class="ghost-button" id="auditReplaySlaDigestGenerateButton" type="button">Generate SLA digest</button>
+              <button class="ghost-button" id="auditReplaySlaDigestHtmlButton" type="button">SLA digest HTML</button>
+              <button class="ghost-button" id="auditReplaySlaDigestScheduleSaveButton" type="button">Save digest schedule</button>
+              <button class="ghost-button" id="auditReplaySlaDigestScheduleRunButton" type="button">Run digest schedule</button>
+              <button class="ghost-button" id="auditReplaySlaDigestPruneButton" type="button">Prune digests</button>
+              <button class="ghost-button" id="auditReplaySlaDigestReceiptButton" type="button">Retention receipt</button>
+              <button class="ghost-button" id="auditReplaySlaAlertAckButton" type="button">Ack SLA alert</button>
+              <button class="ghost-button" id="auditReplaySlaAlertSnoozeButton" type="button">Snooze SLA alert</button>
+              <button class="ghost-button" id="auditNotificationWorkloadAckButton" type="button">Ack workload</button>
+              <button class="ghost-button" id="auditNotificationWorkloadReassignButton" type="button">Reassign workload</button>
+              <button class="ghost-button" id="auditNotificationWorkloadResolveButton" type="button">Resolve workload</button>
+              <button class="ghost-button" id="auditNotificationAckButton" type="button">Ack latest</button>
+              <button class="ghost-button" id="auditNotificationSnoozeButton" type="button">Snooze latest</button>
+            </div>
+          </div>
+          <div class="audit-verification-history" id="auditNotificationStatus">Notifications loading</div>
+          <div class="audit-verification-history" id="auditNotificationPolicyStatus">Notification policy loading</div>
+          <div class="audit-verification-history" id="auditNotificationReplayWorkloadStatus">Replay approval workload loading</div>
+          <div class="audit-verification-history" id="auditReplayThresholdStatus">Replay SLA thresholds loading</div>
+          <div class="audit-verification-history" id="auditReplaySlaAlertStatus">Replay SLA alert inbox loading</div>
+          <div class="audit-verification-history" id="auditReplaySlaScheduleStatus">Replay SLA schedule loading</div>
+          <div class="audit-verification-history" id="auditReplaySlaDigestStatus">Replay SLA digest loading</div>
+          <div class="audit-verification-history" id="auditReplaySlaDigestScheduleStatus">Replay SLA digest schedule loading</div>
+          <div class="audit-verification-history" id="auditReplaySlaDigestReceiptStatus">Replay SLA digest retention receipts loading</div>
+          <div class="audit-evidence-row">
+            <label class="field compact-field">
+              <span>Rule name</span>
+              <input id="auditRuleNameInput" placeholder="critical overdue" />
+            </label>
+            <label class="field compact-field">
+              <span>Rule kind</span>
+              <select id="auditRuleKindSelect">
+                <option value="overdue">Overdue</option>
+                <option value="due_soon">Due soon</option>
+              </select>
+            </label>
+            <label class="field compact-field">
+              <span>Rule priority</span>
+              <select id="auditRulePrioritySelect">
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="normal">Normal</option>
+                <option value="low">Low</option>
+              </select>
+            </label>
+            <label class="field compact-field">
+              <span>Adapter</span>
+              <select id="auditRuleAdapterSelect">
+                <option value="webhook">Webhook</option>
+                <option value="email">Email</option>
+              </select>
+            </label>
+            <label class="field compact-field">
+              <span>Repeat min</span>
+              <input id="auditRuleRepeatInput" inputmode="numeric" placeholder="15" />
+            </label>
+            <label class="field compact-field">
+              <span>Suppress min</span>
+              <input id="auditRuleSuppressInput" inputmode="numeric" placeholder="60" />
+            </label>
+            <label class="field compact-field">
+              <span>Escalate to</span>
+              <input id="auditRuleAssigneeInput" placeholder="ops-lead" />
+            </label>
+            <div class="audit-filter-actions">
+              <button class="ghost-button" id="auditRuleSaveButton" type="button">Save rule</button>
+            </div>
+          </div>
+          <div class="audit-verification-history" id="auditNotificationRuleStatus">Notification rules loading</div>
+          <div class="audit-verification-history" id="auditNotificationDeliveryStatus">Delivery attempts loading</div>
+          <div class="audit-retention-status" id="auditRetentionStatus">Retention policy loading</div>
+          <div class="audit-filter-status" id="auditFilterStatus">Loading audit activity</div>
+          <div class="activity-list" id="activityList"></div>
+        </section>
+
+        <section class="admin-panel">
+          <div class="section-title">
+            <span class="label">Admin users</span>
+            <strong>Internal access</strong>
+          </div>
+          <div class="admin-grid">
+            <div class="admin-users-list" id="adminUsersList"></div>
+            <form class="admin-user-form" id="adminUserForm">
+              <div class="drawer-head">
+                <span class="label">Create user</span>
+                <strong>New internal user</strong>
+              </div>
+              <label class="field">
+                <span>Username</span>
+                <input name="username" autocomplete="off" required />
+              </label>
+              <label class="field">
+                <span>Display name</span>
+                <input name="display_name" autocomplete="off" />
+              </label>
+              <label class="field">
+                <span>Role</span>
+                <select name="role">
+                  <option value="viewer">Viewer</option>
+                  <option value="operator">Operator</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Password</span>
+                <input name="password" type="password" autocomplete="new-password" minlength="8" required />
+              </label>
+              <button class="action-submit" type="submit">Create user</button>
+              <div class="admin-notice" id="adminNotice"></div>
+            </form>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="/internal/ops/dashboard-ui/app.js" type="module"></script>
+  </body>
+</html>

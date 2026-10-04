@@ -1,0 +1,12 @@
+{
+  "name": "abstract-logging",
+  "version": "2.0.1",
+  "license": "MIT",
+  "author": "James Sumners <james.sumners@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jsumners/abstract-logging.git"
+  },
+  "homepage": "https://github.com/jsumners/abstract-logging#readme",
+  "locked_version": "2.0.1"
+}

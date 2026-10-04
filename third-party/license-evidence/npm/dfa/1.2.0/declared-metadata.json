@@ -1,0 +1,12 @@
+{
+  "name": "dfa",
+  "version": "1.2.0",
+  "license": "MIT",
+  "author": "Devon Govett <devongovett@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/devongovett/dfa.git"
+  },
+  "homepage": "https://github.com/devongovett/dfa#readme",
+  "locked_version": "1.2.0"
+}

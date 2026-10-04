@@ -1,0 +1,13 @@
+{
+  "package": "brotli",
+  "version": "1.3.3",
+  "declared_license": "MIT",
+  "authors": [
+    {
+      "name": "Devon Govett",
+      "email": "devongovett@gmail.com"
+    }
+  ],
+  "source": "https://registry.npmjs.org/brotli/1.3.3",
+  "method": "Standard MIT text reproduced from SPDX to accompany upstream MIT declaration and published author attribution. No invented copyright years and no claim that upstream shipped a standalone LICENSE."
+}

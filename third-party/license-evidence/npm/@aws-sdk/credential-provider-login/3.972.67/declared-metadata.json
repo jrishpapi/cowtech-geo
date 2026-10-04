@@ -1,0 +1,16 @@
+{
+  "name": "@aws-sdk/credential-provider-login",
+  "version": "3.972.67",
+  "license": "Apache-2.0",
+  "author": {
+    "name": "AWS SDK for JavaScript Team",
+    "url": "https://aws.amazon.com/sdk-for-javascript/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aws/aws-sdk-js-v3.git",
+    "directory": "packages-internal/credential-provider-login"
+  },
+  "homepage": "https://github.com/aws/aws-sdk-js-v3/tree/main/packages-internal/credential-provider-login",
+  "locked_version": "3.972.67"
+}

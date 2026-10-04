@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Engine Visibility Dashboard</title>
+    <link rel="stylesheet" href="/dashboard/articles/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand-mark">
+          <span class="brand-symbol">G</span>
+          <div>
+            <strong>Cowtech Visibility</strong>
+            <small>AI engine tracking</small>
+          </div>
+        </div>
+
+        <div class="run-picker">
+          <label for="runSelect">Tracking run</label>
+          <select id="runSelect" aria-label="Tracking run"></select>
+        </div>
+
+        <nav class="article-list" id="articleList" aria-label="Articles"></nav>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow" id="brandLine">Dashboard</p>
+            <h1 id="pageTitle">AI Engine Visibility</h1>
+          </div>
+          <div class="topbar-actions">
+            <button class="lang-toggle" id="langToggle" type="button">EN</button>
+            <div class="summary-strip" id="summaryStrip"></div>
+          </div>
+        </header>
+
+        <section class="ai-overview-board" id="aiOverviewBoard"></section>
+
+        <section class="setup-board" id="setupBoard"></section>
+
+        <section class="phase4-board" id="phase4Board" aria-label="GEO execution studio"></section>
+
+        <section class="prompt-discovery-board" id="promptDiscoveryBoard"></section>
+
+        <section class="visibility-board" id="visibilityBoard"></section>
+
+        <section class="monitoring-board" id="monitoringBoard"></section>
+
+        <section class="opportunity-board" id="opportunityBoard"></section>
+
+        <section class="brief-board" id="briefBoard"></section>
+
+        <section class="monthly-report-board" id="monthlyReportBoard"></section>
+
+        <section class="publish-handoff-board" id="publishHandoffBoard"></section>
+
+        <section class="retest-report-board" id="retestReportBoard"></section>
+
+        <section class="status-band" id="statusBand"></section>
+
+        <section class="detail-grid">
+          <article class="panel production-panel">
+            <div class="panel-heading">
+              <span class="panel-kicker">Production</span>
+              <h2>Article workflow</h2>
+            </div>
+            <div class="production-summary" id="productionSummary"></div>
+            <ol class="production-rail" id="productionRail"></ol>
+          </article>
+
+          <article class="panel article-panel">
+            <div class="panel-heading">
+              <span class="panel-kicker">Review package</span>
+              <h2 id="articleTitle">Select an article</h2>
+            </div>
+            <div class="meta-row" id="articleMeta"></div>
+            <div class="preview-frame">
+              <pre id="packagePreview"></pre>
+            </div>
+            <div class="file-table" id="fileTable"></div>
+          </article>
+
+          <article class="panel timeline-panel">
+            <div class="panel-heading">
+              <span class="panel-kicker">Timeline</span>
+              <h2>Delivery state</h2>
+            </div>
+            <ol class="timeline" id="timelineList"></ol>
+          </article>
+
+          <article class="panel handoff-panel">
+            <div class="panel-heading">
+              <span class="panel-kicker">Approval</span>
+              <h2>Customer actions</h2>
+            </div>
+            <div class="state-block" id="handoffState"></div>
+            <div class="action-grid" id="actionGrid"></div>
+          </article>
+
+          <article class="panel retest-panel">
+            <div class="panel-heading">
+              <span class="panel-kicker">Retest</span>
+              <h2>Measured result</h2>
+            </div>
+            <div id="retestCard"></div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <script src="/dashboard/articles/app.js" type="module"></script>
+  </body>
+</html>
