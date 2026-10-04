@@ -8,6 +8,10 @@ CowTech GEO connects AI-answer monitoring with a practical content workflow: org
 
 **Release: v0.1.0 — self-hosted, bring your own services.** [GitHub](https://github.com/jrishpapi/cowtech-geo) · [Releases](https://github.com/jrishpapi/cowtech-geo/releases) · [Issues](https://github.com/jrishpapi/cowtech-geo/issues). This release provides application code, provider adapters and the internal workflow. Operators supply their own API, email and publishing credentials and validate their selected integrations. It does not claim all live services or browser surfaces have been verified. Documentation beyond this overview is currently in Chinese.
 
+## Contact
+
+WeChat: **`jrishpapi`** — for project discussions and collaboration.
+
 ## Why CowTech GEO?
 
 | Problem | Workflow |

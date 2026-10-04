@@ -10,6 +10,10 @@ CowTech GEO 面向品牌团队、内容运营团队、GEO/SEO 服务商和自托
 
 **版本：v0.1.0，自托管、自带服务。** [GitHub 仓库](https://github.com/jrishpapi/cowtech-geo) · [下载发行包](https://github.com/jrishpapi/cowtech-geo/releases) · [问题反馈](https://github.com/jrishpapi/cowtech-geo/issues)。本项目提供代码、接入通道和内部工作链路；采用者自行申请 API、配置邮件与发布服务，并验证选定的接入。已完成本地空库安装和基础接线验收，不声称所有真实第三方平台均已实测。
 
+## 联系方式
+
+微信：**`jrishpapi`**，欢迎交流项目使用与合作。
+
 ## 为什么需要它？
 
 团队需要回答的不只是“网站排第几”，还有：AI 是否提到我们、描述是否准确、引用哪些来源、竞争者出现在哪里、应该改进哪些内容，以及改进后样本发生了什么变化。
